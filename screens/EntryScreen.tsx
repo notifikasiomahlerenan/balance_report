@@ -117,6 +117,44 @@ export default function EntryScreen({ route, navigation }: Props) {
     }
   };
 
+  const pickFromLibrary = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Photo library permission is needed to upload a receipt.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.3,
+        allowsEditing: false,
+        base64: true,
+        exif: false,
+      });
+
+      if (result.canceled) return;
+      const asset = result.assets?.[0];
+      if (!asset?.uri) {
+        Alert.alert('Upload error', 'Could not read the selected image. Please try again.');
+        return;
+      }
+
+      if (asset.base64) {
+        setReceiptBase64(`data:image/jpeg;base64,${asset.base64}`);
+      } else {
+        const dataUri = await uriToDataUri(asset.uri);
+        if (!dataUri.startsWith('data:image/')) {
+          Alert.alert('Upload error', 'Selected file is not a valid image payload.');
+          return;
+        }
+        setReceiptBase64(dataUri);
+      }
+    } catch (err) {
+      Alert.alert('Upload error', 'Could not process selected image: ' + String(err));
+    }
+  };
+
   const removeReceipt = () => {
     setReceiptBase64(null);
     setExistingBase64(null);
@@ -349,7 +387,7 @@ export default function EntryScreen({ route, navigation }: Props) {
         </View>
 
         {/* ── Receipt ── */}
-        <Text style={styles.label}>Receipt Photo</Text>
+        <Text style={styles.label}>Receipt</Text>
         {activeReceipt ? (
           <View style={styles.receiptBox}>
             <Image source={{ uri: activeReceipt }} style={styles.receiptThumb} resizeMode="cover" />
@@ -357,16 +395,25 @@ export default function EntryScreen({ route, navigation }: Props) {
               <TouchableOpacity style={styles.retakeBtn} onPress={takePhoto}>
                 <Text style={styles.retakeBtnText}>📷  Retake</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.uploadBtn} onPress={pickFromLibrary}>
+                <Text style={styles.uploadBtnText}>🖼️  Upload</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.removeBtn} onPress={removeReceipt}>
                 <Text style={styles.removeBtnText}>✕  Remove</Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : (
-          <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
-            <Text style={styles.cameraBtnText}>📷  Take Receipt Photo</Text>
-            <Text style={styles.cameraBtnSub}>Optional</Text>
-          </TouchableOpacity>
+          <View style={styles.receiptChoiceRow}>
+            <TouchableOpacity style={[styles.cameraBtn, styles.receiptChoiceBtn]} onPress={takePhoto}>
+              <Text style={styles.cameraBtnText}>📷  Take Photo</Text>
+              <Text style={styles.cameraBtnSub}>Optional</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.libraryBtn, styles.receiptChoiceBtn]} onPress={pickFromLibrary}>
+              <Text style={styles.libraryBtnText}>🖼️  Upload</Text>
+              <Text style={styles.cameraBtnSub}>Optional</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* ── Bottom actions ── */}
@@ -465,6 +512,19 @@ const styles = StyleSheet.create({
   cameraBtnText: { fontSize: 16, color: colors.primary, fontWeight: '800' },
   cameraBtnSub: { fontSize: 12, color: '#aaa', marginTop: 4 },
 
+  receiptChoiceRow: { flexDirection: 'row', gap: 12 },
+  receiptChoiceBtn: { flex: 1 },
+  libraryBtn: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#8a8fa3',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    paddingVertical: 22,
+    alignItems: 'center',
+  },
+  libraryBtnText: { fontSize: 16, color: '#586075', fontWeight: '800' },
+
   receiptBox: { backgroundColor: '#fff', borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: '#ddd' },
   receiptThumb: { width: '100%', height: 180 },
   receiptActions: { flexDirection: 'row', padding: 10, gap: 10 },
@@ -476,6 +536,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retakeBtnText: { color: colors.primary, fontWeight: '800', fontSize: 15 },
+  uploadBtn: {
+    flex: 1,
+    backgroundColor: '#eef2ff',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  uploadBtnText: { color: '#3f51b5', fontWeight: '800', fontSize: 15 },
   removeBtn: {
     flex: 1,
     backgroundColor: '#fdecea',

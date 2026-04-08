@@ -35,7 +35,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Allow Expense Report to access your camera to take receipt photos."
+          "cameraPermission": "Allow Expense Report to access your camera to take receipt photos.",
+          "photosPermission": "Allow Expense Report to access your photos to upload receipt images."
         }
       ]
     ],
