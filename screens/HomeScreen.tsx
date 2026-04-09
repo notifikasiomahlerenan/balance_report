@@ -72,7 +72,7 @@ export default function HomeScreen({ navigation }: Props) {
 
   const handleExportPDF = useCallback(async () => {
     if (expenses.length === 0) {
-      Alert.alert('No data', 'No expenses to export for this month.');
+      Alert.alert('Tidak ada data', 'Tidak ada transaksi untuk diekspor pada bulan ini.');
       return;
     }
     setExporting(true);
@@ -110,28 +110,28 @@ export default function HomeScreen({ navigation }: Props) {
 </style>
 </head>
 <body>
-<h2>Balance Book &ndash; ${monthLabel(monthKey)}</h2>
-<p class="subtitle">Generated ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })} &nbsp;|&nbsp; ${expenses.length} entries</p>
+<h2>Buku Kas &ndash; ${monthLabel(monthKey)}</h2>
+<p class="subtitle">Dibuat ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })} &nbsp;|&nbsp; ${expenses.length} transaksi</p>
 <table>
   <thead>
     <tr>
-      <th>Date</th><th>Reporter</th><th>Description</th>
-      <th class="amount">Credit (IDR)</th><th class="amount">Debit (IDR)</th><th class="amount">Balance</th><th class="center">Receipt</th>
+      <th>Tanggal</th><th>Pelapor</th><th>Deskripsi</th>
+      <th class="amount">Kredit (IDR)</th><th class="amount">Debit (IDR)</th><th class="amount">Saldo</th><th class="center">Bukti</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
 </table>
-<p class="footer">Receipt images are not included in this PDF. View receipts in the app.</p>
+<p class="footer">Foto bukti tidak disertakan dalam PDF ini. Lihat bukti di aplikasi.</p>
 </body>
 </html>`;
 
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       await Sharing.shareAsync(uri, {
         mimeType: 'application/pdf',
-        dialogTitle: `Expense Report ${monthLabel(monthKey)}`,
+        dialogTitle: `Laporan Kas ${monthLabel(monthKey)}`,
       });
     } catch (err) {
-      Alert.alert('Export failed', String(err));
+      Alert.alert('Ekspor gagal', String(err));
     } finally {
       setExporting(false);
     }
@@ -158,7 +158,7 @@ export default function HomeScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('Settings')}
             style={styles.headerIconBtn}
             accessibilityRole="button"
-            accessibilityLabel="Open settings"
+            accessibilityLabel="Buka pengaturan"
           >
             <Text style={styles.headerIconBtnText}>⚙</Text>
           </TouchableOpacity>
@@ -169,13 +169,13 @@ export default function HomeScreen({ navigation }: Props) {
 
   const renderHeader = () => (
     <View style={styles.tableHeader}>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.date }]}>Date</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.rep }]}>Rep</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.desc }]}>Description</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.credit }]}>Credit</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.date }]}>Tgl</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.rep }]}>Pel</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.desc }]}>Deskripsi</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.credit }]}>Kredit</Text>
       <Text style={[styles.th, styles.vSepHeader, { width: COL.debit }]}>Debit</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.balance }]}>Balance</Text>
-      <Text style={[styles.th, { width: COL.rcpt }, styles.thCenter]}>Rcpt</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.balance }]}>Saldo</Text>
+      <Text style={[styles.th, { width: COL.rcpt }, styles.thCenter]}>Bukti</Text>
     </View>
   );
 
@@ -259,8 +259,8 @@ export default function HomeScreen({ navigation }: Props) {
           <ActivityIndicator style={{ marginTop: 40 }} size="large" color={colors.primary} />
         ) : expenses.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>No expenses for {monthLabel(monthKey)}.</Text>
-            <Text style={styles.emptyHint}>Tap + to add one.</Text>
+            <Text style={styles.emptyText}>Tidak ada transaksi untuk {monthLabel(monthKey)}.</Text>
+            <Text style={styles.emptyHint}>Ketuk + untuk menambah.</Text>
           </View>
         ) : (
           <View style={[styles.card, styles.tableCard]}>
@@ -294,7 +294,7 @@ export default function HomeScreen({ navigation }: Props) {
       <Modal visible={!!previewUrl} transparent animationType="fade" onRequestClose={() => setPreviewUrl(null)}>
         <Pressable style={styles.modalOverlay} onPress={() => setPreviewUrl(null)}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalClose}>✕  tap to close</Text>
+            <Text style={styles.modalClose}>✕  ketuk untuk menutup</Text>
             {previewUrl && (
               <Image
                 source={{ uri: previewUrl }}
@@ -314,11 +314,11 @@ const styles = StyleSheet.create({
   pageScroll: { flex: 1 },
   pageScrollContent: { padding: 20, paddingBottom: 0 },
 
-  headerPdfBtn: { paddingHorizontal: 10, paddingVertical: 6 },
-  headerPdfBtnText: { color: '#fff', fontWeight: '900', fontSize: 14 },
-  headerRightRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  headerIconBtn: { paddingHorizontal: 10, paddingVertical: 6 },
-  headerIconBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  headerRightRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  headerPdfBtn: { paddingHorizontal: 6, paddingVertical: 6 },
+  headerPdfBtnText: { color: '#fff', fontWeight: '900', fontSize: 13 },
+  headerIconBtn: { paddingHorizontal: 6, paddingVertical: 6 },
+  headerIconBtnText: { color: '#fff', fontWeight: '900', fontSize: 15 },
 
   card: {
     backgroundColor: '#fff',

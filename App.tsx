@@ -7,6 +7,8 @@ import { RootStackParamList } from './types';
 import HomeScreen from './screens/HomeScreen';
 import EntryScreen from './screens/EntryScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import TermsOfUseScreen from './screens/TermsOfUseScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -27,7 +29,9 @@ export default function App() {
             name="Home"
             component={HomeScreen}
             options={{
-              title: 'Balance Book',
+              // Keep the header title short to avoid overlapping with header actions (PDF + Settings).
+              // Full branding can live in store listing / settings.
+              title: 'Buku Kas Debit Kredit',
               headerShown: true,
               headerTitleStyle: { fontWeight: '800' },
             }}
@@ -35,12 +39,22 @@ export default function App() {
           <Stack.Screen
             name="Entry"
             component={EntryScreen}
-            options={{ title: 'New Entry' }}
+            options={{ title: 'Transaksi Baru' }}
           />
           <Stack.Screen
             name="Settings"
             component={SettingsScreen}
-            options={{ title: 'Settings' }}
+            options={{ title: 'Pengaturan' }}
+          />
+          <Stack.Screen
+            name="PrivacyPolicy"
+            component={PrivacyPolicyScreen}
+            options={{ title: 'Kebijakan Privasi' }}
+          />
+          <Stack.Screen
+            name="TermsOfUse"
+            component={TermsOfUseScreen}
+            options={{ title: 'Ketentuan Penggunaan' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

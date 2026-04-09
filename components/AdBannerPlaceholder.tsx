@@ -13,8 +13,8 @@ export function AdBannerPlaceholder({ height = 60 }: Props) {
   return (
     <View style={[styles.wrap, { height }]}>
       <View style={styles.inner}>
-        <Text style={styles.small}>Sponsored</Text>
-        <Text style={styles.main}>AdMob Banner (placeholder)</Text>
+        <Text style={styles.small}>Disponsori</Text>
+        <Text style={styles.main}>Iklan (contoh – AdMob)</Text>
       </View>
     </View>
   );

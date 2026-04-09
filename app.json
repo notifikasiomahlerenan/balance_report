@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "expense-report-v2",
+    "name": "Buku Kas Debit Kredit",
     "slug": "expense-report-v2",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -35,8 +35,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Allow Expense Report to access your camera to take receipt photos.",
-          "photosPermission": "Allow Expense Report to access your photos to upload receipt images."
+          "cameraPermission": "Izinkan aplikasi mengakses kamera untuk memotret bukti transaksi.",
+          "photosPermission": "Izinkan aplikasi mengakses foto untuk mengunggah bukti transaksi."
         }
       ]
     ],

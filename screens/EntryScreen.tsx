@@ -35,7 +35,7 @@ async function uriToDataUri(uri: string): Promise<string> {
   const blob = await response.blob();
   return await new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Failed to read captured image'));
+    reader.onerror = () => reject(new Error('Gagal membaca gambar'));
     reader.onloadend = () => resolve(String(reader.result));
     reader.readAsDataURL(blob);
   });
@@ -67,7 +67,7 @@ export default function EntryScreen({ route, navigation }: Props) {
   const personRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    navigation.setOptions({ title: isEdit ? 'Edit Entry' : 'New Entry' });
+    navigation.setOptions({ title: isEdit ? 'Ubah Transaksi' : 'Transaksi Baru' });
     getAllPersonNamesDisplay().then(setSuggestions).catch(() => {});
   }, [isEdit, navigation]);
 
@@ -82,7 +82,7 @@ export default function EntryScreen({ route, navigation }: Props) {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Camera permission is needed to take receipt photos.');
+        Alert.alert('Izin diperlukan', 'Izin kamera diperlukan untuk memotret bukti transaksi.');
         return;
       }
 
@@ -97,7 +97,7 @@ export default function EntryScreen({ route, navigation }: Props) {
       if (result.canceled) return;
       const asset = result.assets?.[0];
       if (!asset?.uri) {
-        Alert.alert('Photo error', 'Camera did not return a valid photo. Please retake.');
+        Alert.alert('Kesalahan foto', 'Kamera tidak mengembalikan foto valid. Silakan coba lagi.');
         return;
       }
 
@@ -108,13 +108,13 @@ export default function EntryScreen({ route, navigation }: Props) {
       } else {
         const dataUri = await uriToDataUri(asset.uri);
         if (!dataUri.startsWith('data:image/')) {
-          Alert.alert('Photo error', 'Captured file is not a valid image payload.');
+          Alert.alert('Kesalahan foto', 'Berkas yang diambil bukan gambar valid.');
           return;
         }
         setReceiptBase64(dataUri);
       }
     } catch (err) {
-      Alert.alert('Photo error', 'Could not process photo: ' + String(err));
+      Alert.alert('Kesalahan foto', 'Tidak dapat memproses foto: ' + String(err));
     }
   };
 
@@ -122,7 +122,7 @@ export default function EntryScreen({ route, navigation }: Props) {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Photo library permission is needed to upload a receipt.');
+        Alert.alert('Izin diperlukan', 'Izin galeri diperlukan untuk mengunggah bukti transaksi.');
         return;
       }
 
@@ -137,7 +137,7 @@ export default function EntryScreen({ route, navigation }: Props) {
       if (result.canceled) return;
       const asset = result.assets?.[0];
       if (!asset?.uri) {
-        Alert.alert('Upload error', 'Could not read the selected image. Please try again.');
+        Alert.alert('Unggah gagal', 'Tidak dapat membaca gambar yang dipilih. Silakan coba lagi.');
         return;
       }
 
@@ -146,13 +146,13 @@ export default function EntryScreen({ route, navigation }: Props) {
       } else {
         const dataUri = await uriToDataUri(asset.uri);
         if (!dataUri.startsWith('data:image/')) {
-          Alert.alert('Upload error', 'Selected file is not a valid image payload.');
+          Alert.alert('Unggah gagal', 'Berkas yang dipilih bukan gambar valid.');
           return;
         }
         setReceiptBase64(dataUri);
       }
     } catch (err) {
-      Alert.alert('Upload error', 'Could not process selected image: ' + String(err));
+      Alert.alert('Unggah gagal', 'Tidak dapat memproses gambar: ' + String(err));
     }
   };
 
@@ -186,23 +186,23 @@ export default function EntryScreen({ route, navigation }: Props) {
 
   // ── Validate ───────────────────────────────────────────────────
   const validate = (): string | null => {
-    if (!person.trim()) return 'Reporter name is required.';
-    if (!description.trim()) return 'Description is required.';
+    if (!person.trim()) return 'Nama pelapor wajib diisi.';
+    if (!description.trim()) return 'Deskripsi wajib diisi.';
     const hasCredit = creditText.trim().length > 0;
     const hasDebit = debitText.trim().length > 0;
-    if (hasCredit && hasDebit) return 'Entry must be either credit or debit (not both).';
-    if (!hasCredit && !hasDebit) return 'Enter either a credit or a debit amount.';
+    if (hasCredit && hasDebit) return 'Isi kredit atau debit saja (bukan keduanya).';
+    if (!hasCredit && !hasDebit) return 'Isi nominal kredit atau debit.';
     const c = Number(cleanMoneyText(creditText));
     const d = Number(cleanMoneyText(debitText));
-    if (hasCredit && (!Number.isFinite(c) || c <= 0)) return 'Enter a valid credit amount.';
-    if (hasDebit && (!Number.isFinite(d) || d <= 0)) return 'Enter a valid debit amount.';
+    if (hasCredit && (!Number.isFinite(c) || c <= 0)) return 'Nominal kredit tidak valid.';
+    if (hasDebit && (!Number.isFinite(d) || d <= 0)) return 'Nominal debit tidak valid.';
     return null;
   };
 
   // ── Save ───────────────────────────────────────────────────────
   const handleSave = async () => {
     const err = validate();
-    if (err) { Alert.alert('Incomplete', err); return; }
+    if (err) { Alert.alert('Belum lengkap', err); return; }
 
     setSaving(true);
     try {
@@ -231,7 +231,7 @@ export default function EntryScreen({ route, navigation }: Props) {
       await savePersonName(person.trim()).catch(() => {});
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Save failed', String(err));
+      Alert.alert('Simpan gagal', String(err));
     } finally {
       setSaving(false);
     }
@@ -240,12 +240,12 @@ export default function EntryScreen({ route, navigation }: Props) {
   // ── Delete ─────────────────────────────────────────────────────
   const handleDelete = () => {
     Alert.alert(
-      'Delete expense',
-      'This entry will be permanently removed.',
+      'Hapus transaksi',
+      'Transaksi ini akan dihapus permanen.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Batal', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Hapus',
           style: 'destructive',
           onPress: async () => {
             setSaving(true);
@@ -253,7 +253,7 @@ export default function EntryScreen({ route, navigation }: Props) {
               await deleteExpense(monthKey, existing!.id);
               navigation.goBack();
             } catch (err) {
-              Alert.alert('Delete failed', String(err));
+              Alert.alert('Hapus gagal', String(err));
               setSaving(false);
             }
           },
@@ -284,7 +284,7 @@ export default function EntryScreen({ route, navigation }: Props) {
       >
 
         {/* ── Date ── */}
-        <Text style={styles.label}>Date</Text>
+        <Text style={styles.label}>Tanggal</Text>
         <TouchableOpacity style={styles.dateBtn} onPress={() => setShowDatePicker(true)}>
           <Text style={styles.dateBtnText}>
             {date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
@@ -302,13 +302,13 @@ export default function EntryScreen({ route, navigation }: Props) {
         )}
 
         {/* ── Reporter ── */}
-        <Text style={styles.label}>Reporter</Text>
+        <Text style={styles.label}>Pelapor</Text>
         <TextInput
           ref={personRef}
           style={styles.input}
           value={person}
           onChangeText={setPerson}
-          placeholder="Enter reporter name"
+          placeholder="Nama pelapor"
           placeholderTextColor="#bbb"
           autoCapitalize="words"
           returnKeyType="next"
@@ -333,12 +333,12 @@ export default function EntryScreen({ route, navigation }: Props) {
         )}
 
         {/* ── Description ── */}
-        <Text style={styles.label}>Description</Text>
+        <Text style={styles.label}>Deskripsi</Text>
         <TextInput
           style={[styles.input, styles.inputMulti]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Enter description"
+          placeholder="Isi deskripsi"
           placeholderTextColor="#bbb"
           multiline
           numberOfLines={2}
@@ -346,7 +346,7 @@ export default function EntryScreen({ route, navigation }: Props) {
         />
 
         {/* ── Credit / Debit ── */}
-        <Text style={styles.label}>Credit (IDR)</Text>
+        <Text style={styles.label}>Kredit (IDR)</Text>
         <TextInput
           style={styles.input}
           value={creditText}
@@ -370,7 +370,7 @@ export default function EntryScreen({ route, navigation }: Props) {
         />
         {debitPreview !== '' && <Text style={styles.amountPreview}>{debitPreview}</Text>}
 
-        <Text style={styles.label}>Balance (Credit − Debit)</Text>
+        <Text style={styles.label}>Saldo (Kredit − Debit)</Text>
         <View style={[styles.input, { justifyContent: 'center' }]}>
           <Text style={{ fontSize: 17, color: '#222', fontWeight: '700' }}>
             {balancePreview || '—'}
@@ -378,31 +378,31 @@ export default function EntryScreen({ route, navigation }: Props) {
         </View>
 
         {/* ── Receipt ── */}
-        <Text style={styles.label}>Receipt</Text>
+        <Text style={styles.label}>Bukti transaksi</Text>
         {activeReceipt ? (
           <View style={styles.receiptBox}>
             <Image source={{ uri: activeReceipt }} style={styles.receiptThumb} resizeMode="cover" />
             <View style={styles.receiptActions}>
               <TouchableOpacity style={styles.retakeBtn} onPress={takePhoto}>
-                <Text style={styles.retakeBtnText}>📷  Retake</Text>
+                <Text style={styles.retakeBtnText}>📷  Ambil ulang</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.uploadBtn} onPress={pickFromLibrary}>
-                <Text style={styles.uploadBtnText}>🖼️  Upload</Text>
+                <Text style={styles.uploadBtnText}>🖼️  Unggah</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.removeBtn} onPress={removeReceipt}>
-                <Text style={styles.removeBtnText}>✕  Remove</Text>
+                <Text style={styles.removeBtnText}>✕  Hapus bukti</Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : (
           <View style={styles.receiptChoiceRow}>
             <TouchableOpacity style={[styles.cameraBtn, styles.receiptChoiceBtn]} onPress={takePhoto}>
-              <Text style={styles.cameraBtnText}>📷  Take Photo</Text>
-              <Text style={styles.cameraBtnSub}>Optional</Text>
+              <Text style={styles.cameraBtnText}>📷  Ambil foto</Text>
+              <Text style={styles.cameraBtnSub}>Opsional</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.libraryBtn, styles.receiptChoiceBtn]} onPress={pickFromLibrary}>
-              <Text style={styles.libraryBtnText}>🖼️  Upload</Text>
-              <Text style={styles.cameraBtnSub}>Optional</Text>
+              <Text style={styles.libraryBtnText}>🖼️  Unggah</Text>
+              <Text style={styles.cameraBtnSub}>Opsional</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -417,13 +417,13 @@ export default function EntryScreen({ route, navigation }: Props) {
             {saving ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.saveBtnText}>{isEdit ? 'Update' : 'Save'}</Text>
+              <Text style={styles.saveBtnText}>{isEdit ? 'Perbarui' : 'Simpan'}</Text>
             )}
           </TouchableOpacity>
 
           {isEdit && (
             <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete} disabled={saving}>
-              <Text style={styles.deleteBtnText}>Delete</Text>
+              <Text style={styles.deleteBtnText}>Hapus transaksi</Text>
             </TouchableOpacity>
           )}
         </View>

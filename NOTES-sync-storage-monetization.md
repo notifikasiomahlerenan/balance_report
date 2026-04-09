@@ -185,5 +185,18 @@ SQLite on a VPS can work at tiny scale, but it tends to be a dead-end once you n
   - “Manage privacy / consent” entry point reachable in Settings
 - **App Store listing basics**
   - App name, short description, screenshots, icon, feature graphic
-  - Data safety form completed accurately (Firebase + receipts + ads)
+  - Data safety form completed accurately (match **actual** stack: local DB vs cloud, receipts, ads)
+
+---
+
+## Reminder — if you ship **Firebase** again later
+
+Update **both** the in-app policy (`screens/PrivacyPolicyScreen.tsx`) and any **public policy URL** to describe, at minimum:
+
+- That data is stored/processed on **Google Firebase** (which products: Realtime Database, Storage, Auth, etc.).
+- Whether **receipt images** are stored in the cloud and in what form (e.g. base64 in DB vs file URLs).
+- **Sync** behavior (multi-device, who can read data) and **retention/deletion**.
+- Re-check **Google Play Data safety** and **AdMob** disclosures so they match the new backend.
+
+Until then, keep the policy aligned with **local-only** (SQLite / on-device) as now.
 

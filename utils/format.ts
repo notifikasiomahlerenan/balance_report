@@ -3,11 +3,13 @@ export function formatIDR(amount: number): string {
   return 'Rp ' + Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-/** Format ISO date string for display: "07 Apr 2026" */
+/** Format ISO date string for display: "07 Apr 2026" (Bahasa Indonesia) */
 export function formatDate(isoDate: string): string {
   const [y, m, d] = isoDate.split('-').map(Number);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+  ];
   return `${String(d).padStart(2, '0')} ${months[m - 1]} ${y}`;
 }
 
@@ -24,11 +26,13 @@ export function toMonthKey(date: Date): string {
   return `${y}-${m}`;
 }
 
-/** Get display label "April 2026" from month key */
+/** Get display label "April 2026" from month key (Bahasa Indonesia) */
 export function monthLabel(monthKey: string): string {
   const [y, m] = monthKey.split('-').map(Number);
-  const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                  'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
   return `${months[m - 1]} ${y}`;
 }
 
