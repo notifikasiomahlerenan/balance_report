@@ -18,11 +18,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Expense } from '../types';
 import { colors } from '../constants/theme';
 import { subscribeToMonthExpenses } from '../utils/db';
+import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import {
   formatIDR,
   formatDate,
   formatDateShort,
   monthLabel,
+  reporterAbbrev,
   shiftMonth,
   toMonthKey,
 } from '../utils/format';
@@ -33,8 +35,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 // Intentionally wider than the viewport so the header has room (horizontal scroll).
 const COL = {
   date: 72,
-  person: 96,
-  place: 96,
+  rep: 56,
   desc: 200,
   credit: 120,
   debit: 120,
@@ -42,6 +43,7 @@ const COL = {
   rcpt: 60,
 };
 const TABLE_WIDTH = Object.values(COL).reduce((a, b) => a + b, 0);
+const AD_HEIGHT = 70;
 
 export default function HomeScreen({ navigation }: Props) {
   const [monthKey, setMonthKey] = useState(toMonthKey(new Date()));
@@ -81,7 +83,6 @@ export default function HomeScreen({ navigation }: Props) {
           <tr>
             <td>${formatDate(e.date)}</td>
             <td>${e.person}</td>
-            <td>${e.place}</td>
             <td>${e.description}</td>
             <td class="amount">${formatIDR(e.credit)}</td>
             <td class="amount">${formatIDR(e.debit)}</td>
@@ -114,7 +115,7 @@ export default function HomeScreen({ navigation }: Props) {
 <table>
   <thead>
     <tr>
-      <th>Date</th><th>Person</th><th>Place</th><th>Description</th>
+      <th>Date</th><th>Reporter</th><th>Description</th>
       <th class="amount">Credit (IDR)</th><th class="amount">Debit (IDR)</th><th class="amount">Balance</th><th class="center">Receipt</th>
     </tr>
   </thead>
@@ -140,17 +141,28 @@ export default function HomeScreen({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={handleExportPDF}
-          disabled={exporting}
-          style={styles.headerPdfBtn}
-        >
-          {exporting ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.headerPdfBtnText}>PDF</Text>
-          )}
-        </TouchableOpacity>
+        <View style={styles.headerRightRow}>
+          <TouchableOpacity
+            onPress={handleExportPDF}
+            disabled={exporting}
+            style={styles.headerPdfBtn}
+          >
+            {exporting ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.headerPdfBtnText}>PDF</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Settings')}
+            style={styles.headerIconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+          >
+            <Text style={styles.headerIconBtnText}>⚙</Text>
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [exporting, handleExportPDF, navigation]);
@@ -158,8 +170,7 @@ export default function HomeScreen({ navigation }: Props) {
   const renderHeader = () => (
     <View style={styles.tableHeader}>
       <Text style={[styles.th, styles.vSepHeader, { width: COL.date }]}>Date</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.person }]}>Person</Text>
-      <Text style={[styles.th, styles.vSepHeader, { width: COL.place }]}>Place</Text>
+      <Text style={[styles.th, styles.vSepHeader, { width: COL.rep }]}>Rep</Text>
       <Text style={[styles.th, styles.vSepHeader, { width: COL.desc }]}>Description</Text>
       <Text style={[styles.th, styles.vSepHeader, { width: COL.credit }]}>Credit</Text>
       <Text style={[styles.th, styles.vSepHeader, { width: COL.debit }]}>Debit</Text>
@@ -177,11 +188,8 @@ export default function HomeScreen({ navigation }: Props) {
         {formatDateShort(item.date)}
       </Text>
       {/* subtle vertical separators between columns */}
-      <Text style={[styles.td, styles.vSepRow, styles.tdPadLeft, { width: COL.person }]} numberOfLines={1}>
-        {item.person}
-      </Text>
-      <Text style={[styles.td, styles.vSepRow, styles.tdPadLeft, { width: COL.place }]} numberOfLines={1}>
-        {item.place}
+      <Text style={[styles.td, styles.vSepRow, { width: COL.rep }, styles.tdCenter]} numberOfLines={1}>
+        {reporterAbbrev(item.person)}
       </Text>
       <Text style={[styles.td, styles.vSepRow, styles.tdPadLeft, { width: COL.desc }]} numberOfLines={1}>
         {item.description}
@@ -219,7 +227,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       <ScrollView
         style={styles.pageScroll}
-        contentContainerStyle={styles.pageScrollContent}
+        contentContainerStyle={[styles.pageScrollContent, { paddingBottom: 20 + AD_HEIGHT }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Month selector (card, like Entry page inputs) */}
@@ -277,6 +285,11 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
+      {/* ── Banner ad (placeholder) ── */}
+      <View style={[styles.adDock, { height: AD_HEIGHT }]}>
+        <AdBannerPlaceholder height={AD_HEIGHT - 10} />
+      </View>
+
       {/* ── Receipt preview modal ── */}
       <Modal visible={!!previewUrl} transparent animationType="fade" onRequestClose={() => setPreviewUrl(null)}>
         <Pressable style={styles.modalOverlay} onPress={() => setPreviewUrl(null)}>
@@ -303,6 +316,9 @@ const styles = StyleSheet.create({
 
   headerPdfBtn: { paddingHorizontal: 10, paddingVertical: 6 },
   headerPdfBtnText: { color: '#fff', fontWeight: '900', fontSize: 14 },
+  headerRightRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  headerIconBtn: { paddingHorizontal: 10, paddingVertical: 6 },
+  headerIconBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
 
   card: {
     backgroundColor: '#fff',
@@ -349,6 +365,7 @@ const styles = StyleSheet.create({
   rowAlt: { backgroundColor: colors.rowAlt },
   td: { fontSize: 15, color: '#333', paddingHorizontal: 3 },
   tdRight: { textAlign: 'right' },
+  tdCenter: { textAlign: 'center' },
   tdPadLeft: { paddingLeft: 10 },
   vSepRow: { borderRightWidth: 1, borderRightColor: '#c9cfdd' },
 
@@ -374,7 +391,7 @@ const styles = StyleSheet.create({
 
   fab: {
     position: 'absolute',
-    bottom: 28,
+    bottom: 28 + AD_HEIGHT,
     right: 24,
     width: 56,
     height: 56,
@@ -389,6 +406,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
   },
   fabText: { color: '#fff', fontSize: 30, lineHeight: 34 },
+
+  adDock: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
 
   modalOverlay: {
     flex: 1,

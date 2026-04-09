@@ -38,3 +38,14 @@ export function shiftMonth(monthKey: string, delta: number): string {
   const d = new Date(y, m - 1 + delta, 1);
   return toMonthKey(d);
 }
+
+/** Reporter abbreviation for compact tables (e.g. "RZ", "AM", "A") */
+export function reporterAbbrev(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return '';
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  const initials = parts.map((p) => p[0]?.toUpperCase()).filter(Boolean);
+  const joined = initials.join('');
+  if (joined.length >= 2) return joined.slice(0, 2);
+  return trimmed.slice(0, 2).toUpperCase();
+}

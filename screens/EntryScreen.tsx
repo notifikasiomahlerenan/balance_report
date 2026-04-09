@@ -17,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors } from '../constants/theme';
 import { RootStackParamList } from '../types';
+import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import {
   addExpense,
   updateExpense,
@@ -27,6 +28,7 @@ import {
 import { formatIDR, toMonthKey } from '../utils/format';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Entry'>;
+const AD_HEIGHT = 70;
 
 async function uriToDataUri(uri: string): Promise<string> {
   const response = await fetch(uri);
@@ -50,7 +52,6 @@ export default function EntryScreen({ route, navigation }: Props) {
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [person, setPerson] = useState(existing?.person ?? '');
-  const [place, setPlace] = useState(existing?.place ?? '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [creditText, setCreditText] = useState(existing?.credit ? String(existing.credit) : '');
   const [debitText, setDebitText] = useState(existing?.debit ? String(existing.debit) : '');
@@ -185,8 +186,7 @@ export default function EntryScreen({ route, navigation }: Props) {
 
   // ── Validate ───────────────────────────────────────────────────
   const validate = (): string | null => {
-    if (!person.trim()) return 'Person name is required.';
-    if (!place.trim()) return 'Place is required.';
+    if (!person.trim()) return 'Reporter name is required.';
     if (!description.trim()) return 'Description is required.';
     const hasCredit = creditText.trim().length > 0;
     const hasDebit = debitText.trim().length > 0;
@@ -214,7 +214,6 @@ export default function EntryScreen({ route, navigation }: Props) {
       const payload = {
         date: isoDate,
         person: person.trim(),
-        place: place.trim(),
         description: description.trim(),
         credit: creditValue,
         debit: debitValue,
@@ -278,7 +277,11 @@ export default function EntryScreen({ route, navigation }: Props) {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.container, { paddingBottom: 20 + AD_HEIGHT }]}
+        keyboardShouldPersistTaps="handled"
+      >
 
         {/* ── Date ── */}
         <Text style={styles.label}>Date</Text>
@@ -298,14 +301,14 @@ export default function EntryScreen({ route, navigation }: Props) {
           />
         )}
 
-        {/* ── Person ── */}
-        <Text style={styles.label}>Person</Text>
+        {/* ── Reporter ── */}
+        <Text style={styles.label}>Reporter</Text>
         <TextInput
           ref={personRef}
           style={styles.input}
           value={person}
           onChangeText={setPerson}
-          placeholder="Enter name"
+          placeholder="Enter reporter name"
           placeholderTextColor="#bbb"
           autoCapitalize="words"
           returnKeyType="next"
@@ -328,18 +331,6 @@ export default function EntryScreen({ route, navigation }: Props) {
             ))}
           </View>
         )}
-
-        {/* ── Place ── */}
-        <Text style={styles.label}>Place</Text>
-        <TextInput
-          style={styles.input}
-          value={place}
-          onChangeText={setPlace}
-          placeholder="Enter place"
-          placeholderTextColor="#bbb"
-          autoCapitalize="words"
-          returnKeyType="next"
-        />
 
         {/* ── Description ── */}
         <Text style={styles.label}>Description</Text>
@@ -439,6 +430,11 @@ export default function EntryScreen({ route, navigation }: Props) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* ── Banner ad (placeholder) ── */}
+      <View style={[styles.adDock, { height: AD_HEIGHT }]}>
+        <AdBannerPlaceholder height={AD_HEIGHT - 10} />
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -573,4 +569,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteBtnText: { color: '#e53935', fontSize: 16, fontWeight: '800' },
+
+  adDock: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
 });

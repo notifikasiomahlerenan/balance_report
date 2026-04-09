@@ -6,6 +6,7 @@ import { colors } from './constants/theme';
 import { RootStackParamList } from './types';
 import HomeScreen from './screens/HomeScreen';
 import EntryScreen from './screens/EntryScreen';
+import SettingsScreen from './screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,6 +36,11 @@ export default function App() {
             name="Entry"
             component={EntryScreen}
             options={{ title: 'New Entry' }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{ title: 'Settings' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

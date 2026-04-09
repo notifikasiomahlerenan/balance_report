@@ -51,7 +51,6 @@ export function subscribeToMonthExpenses(
         return {
           date: String(raw.date),
           person: String(raw.person ?? ''),
-          place: String(raw.place ?? ''),
           description: String(raw.description ?? ''),
           credit: finalCredit,
           debit: finalDebit,

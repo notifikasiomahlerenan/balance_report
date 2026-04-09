@@ -1,8 +1,7 @@
 export type Expense = {
   id: string;
   date: string;           // ISO "YYYY-MM-DD"
-  person: string;
-  place: string;
+  person: string;         // Reporter / entered by (single-user or small team)
   description: string;
   credit: number;         // integer IDR, >= 0
   debit: number;          // integer IDR, >= 0
@@ -14,4 +13,5 @@ export type Expense = {
 export type RootStackParamList = {
   Home: undefined;
   Entry: { expense?: Expense; monthKey: string } | undefined;
+  Settings: undefined;
 };
