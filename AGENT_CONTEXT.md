@@ -119,3 +119,49 @@ type Expense = {
 ## 8. Cloud / third-party (this release)
 
 - **No Firebase or other remote database** shipped in the app. Third-party processing called out in the in-app privacy text is mainly **Google AdMob** when ads are enabled.
+
+---
+
+## 9. Branch switching — agent prompts
+
+Two product variants exist as separate branches. **Never mix Firebase code into master.** Each branch ships as a distinct binary with its own privacy policy and Play Store listing.
+
+### Switch to Firebase backend (for development/testing)
+
+> **Prompt to paste into a new agent chat:**
+>
+> I need to work on the Firebase cloud-sync variant of this app.
+>
+> 1. Read `AGENT_CONTEXT.md` first.
+> 2. Run `git stash` if there are uncommitted changes, then `git checkout firebase-backend`.
+> 3. Run `npm install` (this branch requires the `firebase` package).
+> 4. Confirm: `constants/firebase.ts`, `constants/dataBackend.ts`, and `utils/db.firebase.ts` all exist.
+> 5. The backend switch is in `constants/dataBackend.ts` — set `DATA_BACKEND` to `'firebase'` to use Firebase RTDB, or `'sqlite'` for local.
+>
+> **IMPORTANT:** Any commits on this branch must NOT be merged into `master`. The `master` branch is the SQLite-only, privacy-safe product. Firebase code in master is a legal liability.
+>
+> When done, run `git checkout master && npm install` to return to the clean SQLite build.
+
+### Switch back to SQLite-only (shippable product)
+
+> **Prompt to paste into a new agent chat:**
+>
+> Switch back to the SQLite-only shippable version.
+>
+> 1. Read `AGENT_CONTEXT.md` first.
+> 2. Run `git checkout master`.
+> 3. Run `npm install` to ensure no Firebase packages are in `node_modules`.
+> 4. Verify: `constants/firebase.ts`, `constants/dataBackend.ts`, and `utils/db.firebase.ts` must NOT exist. If any of these files exist, something is wrong — stop and report.
+> 5. Verify: `package.json` must NOT list `firebase` in dependencies.
+>
+> This branch is the Play Store build. The privacy policy says all data stays on device. The binary must match that claim — zero Firebase SDK, config, or cloud code.
+
+### Guard rail for any agent working on `master`
+
+> **Add to any prompt when working on master:**
+>
+> You are on the `master` branch. This is the SQLite-only, local-data-only product.
+> **Do NOT add firebase, @firebase/*, or any cloud database dependency.**
+> **Do NOT create files that import from firebase or connect to remote databases.**
+> **Do NOT add any code that transmits user transaction data off-device.**
+> The in-app privacy policy promises data stays on the phone. Violating this is a legal and regulatory risk.
