@@ -1,0 +1,36 @@
+diff --git a/node_modules/expo/src/async-require/hmr.ts b/node_modules/expo/src/async-require/hmr.ts
+index 0000000..1111111 100644
+--- a/node_modules/expo/src/async-require/hmr.ts
++++ b/node_modules/expo/src/async-require/hmr.ts
+@@ -157,6 +157,12 @@
+   setup({ isEnabled }: { isEnabled: boolean }) {
+     assert(!hmrClient, 'Cannot initialize hmrClient twice');
+ 
++    // On native, RN sets global.window = global but global.location is undefined.
++    // Bail out early – native HMR is handled by react-native/Libraries/Utilities/HMRClient.
++    if (typeof window?.location === 'undefined') {
++      return;
++    }
++
+     const serverScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+     const client = new MetroHMRClient(`${serverScheme}://${window.location.host}/hot`);
+     hmrClient = client;
+diff --git a/node_modules/expo/src/async-require/setup.ts b/node_modules/expo/src/async-require/setup.ts
+index 0000000..1111111 100644
+--- a/node_modules/expo/src/async-require/setup.ts
++++ b/node_modules/expo/src/async-require/setup.ts
+@@ -1,10 +1,12 @@
+-// Only during development.
++// Only during development on web.
++// RN sets `global.window = global` (no `location`), so `typeof window !== 'undefined'` is true on
++// native and incorrectly pulled in web HMR (`hmr.ts` uses `window.location`).
+ if (
+   __DEV__ &&
+-  // Disable for SSR
++  process.env.EXPO_OS === 'web' &&
+   typeof window !== 'undefined'
+ ) {
+   require('./setupFastRefresh');
+   require('./setupHMR');
+   require('./messageSocket');
+ }
