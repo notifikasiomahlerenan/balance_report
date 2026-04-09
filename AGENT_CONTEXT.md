@@ -37,6 +37,7 @@ The project was migrated from `/mnt/d/` to `/home/user_hilman/projects/` for WSL
 | `utils/db.firebase.ts` | Firebase Realtime DB implementation |
 | `utils/db.sqlite.ts` | On-device SQLite (native) + in-memory fallback (Expo Web) |
 | `constants/dataBackend.ts` | `DATA_BACKEND` switch (default: `sqlite`) |
+| `patches/expo+54.0.33.patch` | **patch-package:** (1) `async-require/hmr.ts` — early return when `window.location` is undefined on native. (2) `async-require/setup.ts` — web-only HMR requires. Fixes Expo Go dev crash: web HMR touched `window.location.protocol` while RN sets `window = global` without `location`. Unrelated to SQLite vs Firebase. |
 | `utils/format.ts` | IDR and date formatters |
 | `types/index.ts` | Expense type definition |
 | `constants/firebase.ts` | Firebase config and initialization |
