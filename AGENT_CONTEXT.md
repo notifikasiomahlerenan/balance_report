@@ -17,11 +17,18 @@
 
 | What | Path |
 |------|------|
-| **Active project (use this)** | `/home/user_hilman/projects/balance-report/expense-report-v2` |
+| **Active project (use this)** | `/home/user_hilman/projects/balance-report` (repo root) |
 | Source project (do not edit while upgrading v2) | `/home/user_hilman/projects/expense-report` |
 | Old project copy (backup, do not edit) | `/mnt/d/projects/expense-report` |
 
 The project was migrated from `/mnt/d/` to `/home/user_hilman/projects/` for WSL2 native filesystem performance (9P bridge penalty eliminated).
+
+### Git branches
+
+| Branch | Purpose |
+|--------|---------|
+| `master` | **SQLite-only** — shippable, zero Firebase code. Privacy-safe for Play Store. |
+| `firebase-backend` | Preserves dual-backend work (SQLite + Firebase RTDB). Use as starting point when building the cloud-sync product variant. |
 
 ---
 
@@ -33,32 +40,31 @@ The project was migrated from `/mnt/d/` to `/home/user_hilman/projects/` for WSL
 | `App.tsx` | Navigation setup (Home + Entry stack) |
 | `screens/HomeScreen.tsx` | Main table: month filter, IDR total, receipt indicator, PDF export |
 | `screens/EntryScreen.tsx` | Add/edit form + camera capture + save/update/delete |
-| `utils/db.ts` | Persistence router (`constants/dataBackend.ts`: `firebase` \| `sqlite`) |
-| `utils/db.firebase.ts` | Firebase Realtime DB implementation |
+| `utils/db.ts` | Re-exports persistence API from `utils/db.sqlite.ts` |
 | `utils/db.sqlite.ts` | On-device SQLite (native) + in-memory fallback (Expo Web) |
-| `constants/dataBackend.ts` | `DATA_BACKEND` switch (default: `sqlite`) |
-| `patches/expo+54.0.33.patch` | **patch-package:** (1) `async-require/hmr.ts` — early return when `window.location` is undefined on native. (2) `async-require/setup.ts` — web-only HMR requires. Fixes Expo Go dev crash: web HMR touched `window.location.protocol` while RN sets `window = global` without `location`. Unrelated to SQLite vs Firebase. |
+| `patches/expo+54.0.33.patch` | **patch-package:** (1) `async-require/hmr.ts` — early return when `window.location` is undefined on native. (2) `async-require/setup.ts` — web-only HMR requires. Fixes Expo Go dev crash: web HMR touched `window.location.protocol` while RN sets `window = global` without `location`. |
 | `utils/format.ts` | IDR and date formatters |
 | `types/index.ts` | Expense type definition |
-| `constants/firebase.ts` | Firebase config and initialization |
 
 ### Data Model
 ```typescript
 type Expense = {
   id: string;
   date: string;           // YYYY-MM-DD
-  person: string;         // free text, no fixed user list
-  place: string;
+  person: string;         // reporter name
   description: string;
-  amount: number;         // IDR, integer
+  credit: number;
+  debit: number;
   receiptBase64: string | null;  // data:image/jpeg;base64,... or null
-}
+  createdAt: number;
+  updatedAt: number;
+};
 ```
 
 ### Backend / persistence
-- **Default: SQLite** (`DATA_BACKEND = 'sqlite'` in `constants/dataBackend.ts`) — `bukukas.db` on device; receipts as base64 text in DB row. **Expo Web** uses an in-memory store (not durable).
-- **Optional: Firebase** — set `DATA_BACKEND` to `'firebase'` for the previous Realtime Database sync (`expenses/{YYYY-MM}/{id}`, `persons/`). Same `utils/db.ts` API.
-- **No authentication** in either mode (internal-style app).
+- **SQLite only (this release):** `bukukas.db` on device; receipts as base64 text in DB row. **No cloud sync, no Firebase SDK or config in the app bundle.**
+- **Expo Web** uses an in-memory store (not durable).
+- **No authentication** (internal-style app).
 
 ### Navigation
 - 2 screens only: Home ↔ Entry (add/edit). No deeper nesting.
@@ -69,9 +75,8 @@ type Expense = {
 
 | Decision | Rationale |
 |----------|-----------|
-| Firebase Realtime DB (not Supabase, not SQLite) | Multi-device sync, minimal setup, free tier sufficient |
-| No Firebase Storage | Spark plan restriction; base64 in DB is acceptable at this scale |
-| Base64 receipts in DB | Avoids two-vendor split; cross-device visibility without object storage |
+| Local SQLite (expo-sqlite) | Data stays on device; aligns with privacy policy and Play listing |
+| Base64 receipts in SQLite row | Avoids separate file sync; acceptable at small scale |
 | Free text Person field | No user management overhead; anyone enters with any name |
 | PDF export = text only | Simplicity; no image embedding needed |
 | Expo Go (not bare workflow) | No custom native build required for current feature set |
@@ -80,9 +85,8 @@ type Expense = {
 
 ## 5. Known Trade-offs
 
-- Base64 in Realtime DB increases payload size per entry (~50–200KB per receipt)
-- Acceptable for small team; move to Firebase Storage (Blaze plan) if scale increases
-- Legacy entries created before base64 migration may have no receipt field
+- Base64 in DB increases row size per entry (~50–200KB per receipt); acceptable for small volume
+- In-memory web store is not durable across refreshes
 
 ---
 
@@ -109,14 +113,9 @@ type Expense = {
 6. Add image compression/resizing before base64 encoding (reduce DB payload)
 7. Add max image payload validation
 8. JSON import/export for offline backup
-9. Migration utility for legacy entries without `receiptBase64`
-10. Move to Firebase Storage (Blaze) if project scales
 
 ---
 
-## 8. Firebase Project
+## 8. Cloud / third-party (this release)
 
-- **Project ID:** `expense-report-aab42`
-- **Realtime DB URL:** `https://expense-report-aab42-default-rtdb.asia-southeast1.firebasedatabase.app`
-- **Region:** asia-southeast1 (Singapore)
-- **Plan:** Spark (free) — Storage not available
+- **No Firebase or other remote database** shipped in the app. Third-party processing called out in the in-app privacy text is mainly **Google AdMob** when ads are enabled.

@@ -7,18 +7,13 @@ Capture decisions and follow-up ideas about **storage**, **sync**, and **monetiz
 ## Current architecture (today)
 
 - **Client**: Expo (React Native)
-- **Backend**: **Firebase Realtime Database**
-- **Receipts**: stored as **base64 text** in the DB (`receiptBase64`)
+- **Backend**: **None in the cloud** — **SQLite on device** (`bukukas.db`); Expo Web uses an in-memory stub (not durable).
+- **Receipts**: stored as **base64 text** in the local DB (`receiptBase64`)
+- **Firebase**: **not included** in this app version (no SDK, no config, no dual backend switch).
 
-### What Firebase is doing
+### Historical note (older design)
 
-- **Storage**: stores your app data as JSON.
-- **Traffic/bandwidth**: every time devices load data or upload receipts, it consumes monthly data transfer.
-
-### Data paths (conceptual)
-
-- **Entries**: `expenses/{YYYY-MM}/{entryId}`
-- **Autocomplete names**: `persons/`
+Earlier iterations used Firebase Realtime Database (`expenses/{YYYY-MM}/{entryId}`, `persons/`). That path was removed from the codebase for this release to match a strict local-only / legal posture.
 
 ### Receipt storage method (important)
 
@@ -200,5 +195,5 @@ Update **both** the in-app policy (`screens/PrivacyPolicyScreen.tsx`) and any **
 
 Until then, keep the policy aligned with **local-only** (SQLite / on-device) as now.
 
-**Code:** persistence is selected by `constants/dataBackend.ts` (`sqlite` default, `firebase` for the RTDB snapshot). Native builds use `expo-sqlite`; Expo Web uses an in-memory stub when `sqlite` is selected.
+**Code:** persistence is `utils/db.ts` → `utils/db.sqlite.ts` only. Native: `expo-sqlite` (`bukukas.db`). Web: in-memory.
 

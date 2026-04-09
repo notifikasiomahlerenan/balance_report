@@ -56,7 +56,7 @@ export default function EntryScreen({ route, navigation }: Props) {
   const [creditText, setCreditText] = useState(existing?.credit ? String(existing.credit) : '');
   const [debitText, setDebitText] = useState(existing?.debit ? String(existing.debit) : '');
   // receiptBase64 holds the NEW photo encoded as data-URI (pending save)
-  // existingBase64 holds whatever is already saved in Firebase for this entry
+  // existingBase64 holds whatever is already saved locally for this entry
   const [receiptBase64, setReceiptBase64] = useState<string | null>(null);
   const [existingBase64, setExistingBase64] = useState<string | null>(
     existing?.receiptBase64 ?? null,

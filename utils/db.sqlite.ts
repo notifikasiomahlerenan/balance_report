@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { Expense } from '../types';
 
-// ─── Month refresh (replaces Firebase realtime listener) ────────────
+// ─── Month refresh (in-process listeners, no cloud) ───────────────────
 
 const monthListeners = new Map<string, Set<() => void>>();
 

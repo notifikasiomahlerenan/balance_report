@@ -1,6 +1,6 @@
 /**
- * Dev reminder: if the app later uses Firebase (or any cloud backend), revise this text
- * and the public policy page — see NOTES-sync-storage-monetization.md → “Reminder — Firebase”.
+ * Dev reminder: if the app later adds cloud sync or a remote backend, revise this text
+ * and the public policy page accordingly.
  */
 import React, { useLayoutEffect } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
