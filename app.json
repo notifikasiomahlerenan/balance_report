@@ -38,7 +38,8 @@
           "cameraPermission": "Izinkan aplikasi mengakses kamera untuk memotret bukti transaksi.",
           "photosPermission": "Izinkan aplikasi mengakses foto untuk mengunggah bukti transaksi."
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "extra": {
       "eas": {

@@ -33,7 +33,10 @@ The project was migrated from `/mnt/d/` to `/home/user_hilman/projects/` for WSL
 | `App.tsx` | Navigation setup (Home + Entry stack) |
 | `screens/HomeScreen.tsx` | Main table: month filter, IDR total, receipt indicator, PDF export |
 | `screens/EntryScreen.tsx` | Add/edit form + camera capture + save/update/delete |
-| `utils/db.ts` | Firebase Realtime DB CRUD helpers |
+| `utils/db.ts` | Persistence router (`constants/dataBackend.ts`: `firebase` \| `sqlite`) |
+| `utils/db.firebase.ts` | Firebase Realtime DB implementation |
+| `utils/db.sqlite.ts` | On-device SQLite (native) + in-memory fallback (Expo Web) |
+| `constants/dataBackend.ts` | `DATA_BACKEND` switch (default: `sqlite`) |
 | `utils/format.ts` | IDR and date formatters |
 | `types/index.ts` | Expense type definition |
 | `constants/firebase.ts` | Firebase config and initialization |
@@ -51,10 +54,10 @@ type Expense = {
 }
 ```
 
-### Backend
-- **Firebase Realtime Database** — all text data (`expenses/{YYYY-MM}/{id}` and `persons`)
-- **No Firebase Storage** — Spark free plan does not include Storage; receipts stored as base64 strings inside Realtime DB
-- **No authentication** — open access, internal use only
+### Backend / persistence
+- **Default: SQLite** (`DATA_BACKEND = 'sqlite'` in `constants/dataBackend.ts`) — `bukukas.db` on device; receipts as base64 text in DB row. **Expo Web** uses an in-memory store (not durable).
+- **Optional: Firebase** — set `DATA_BACKEND` to `'firebase'` for the previous Realtime Database sync (`expenses/{YYYY-MM}/{id}`, `persons/`). Same `utils/db.ts` API.
+- **No authentication** in either mode (internal-style app).
 
 ### Navigation
 - 2 screens only: Home ↔ Entry (add/edit). No deeper nesting.

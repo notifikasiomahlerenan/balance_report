@@ -200,3 +200,5 @@ Update **both** the in-app policy (`screens/PrivacyPolicyScreen.tsx`) and any **
 
 Until then, keep the policy aligned with **local-only** (SQLite / on-device) as now.
 
+**Code:** persistence is selected by `constants/dataBackend.ts` (`sqlite` default, `firebase` for the RTDB snapshot). Native builds use `expo-sqlite`; Expo Web uses an in-memory stub when `sqlite` is selected.
+
